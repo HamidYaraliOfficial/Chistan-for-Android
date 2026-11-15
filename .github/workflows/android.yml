@@ -1,26 +1,67 @@
-name: Android CI
+name: Build Android APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, master]
+    tags: ['v*']
   pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # only used to attach the APKs to a Release when you push a tag
 
 jobs:
-  build:
-
+  apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # true only when you have added your own signing key as repository secrets (see README)
+      HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: gradle
+      - uses: actions/checkout@v4
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Make the Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Decode your signing key (only if you added one)
+        if: ${{ env.HAS_KEYSTORE == 'true' }}
+        run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/chistan.jks"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Build the APKs
+        run: ./gradlew --no-daemon assembleDebug assembleRelease
+        env:
+          CHISTAN_KEYSTORE_FILE: ${{ env.HAS_KEYSTORE == 'true' && format('{0}/chistan.jks', runner.temp) || '' }}
+          CHISTAN_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          CHISTAN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          CHISTAN_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Collect the APKs
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk dist/Chistan.apk
+          cp app/build/outputs/apk/debug/app-debug.apk dist/Chistan-debug.apk
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chistan-apk
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Attach the APKs to the Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
