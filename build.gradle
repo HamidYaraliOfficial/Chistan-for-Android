@@ -1,0 +1,5 @@
+// Top-level build file. The Android Gradle Plugin version is pinned here and works with
+// the Gradle version in gradle/wrapper/gradle-wrapper.properties (AGP 8.7 needs Gradle 8.9+, JDK 17+).
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+}

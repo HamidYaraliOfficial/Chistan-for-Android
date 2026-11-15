@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Page background of the game (light theme) and the colour of the system bars. -->
+    <color name="page_bg">#E7EEF0</color>
+    <color name="bar">#16316F</color>
+    <color name="ic_launcher_background">#16316F</color>
+</resources>

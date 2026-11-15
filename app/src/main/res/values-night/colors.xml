@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme: the page and the system bars share one colour. -->
+    <color name="page_bg">#0A1230</color>
+    <color name="bar">#0A1230</color>
+</resources>
