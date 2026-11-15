@@ -80,9 +80,9 @@
 adb install -r Chistan.apk
 ```
 
-## امضای نسخهٔ اصلی با کلید خودتان (اختیاری)
+## امضای نسخهٔ اصلی با کلید خودتان (الزامی برای کافه‌بازار)
 
-بدون هیچ تنظیمی، `Chistan.apk` با کلید استاندارد debug امضا می‌شود و روی هر گوشی نصب می‌شود. اگر می‌خواهید با کلید خودتان امضا شود:
+نسخهٔ اصلی (`Chistan.apk`) هرگز با کلید debug امضا نمی‌شود، چون کافه‌بازار چنین فایلی را نمی‌پذیرد. بدون کلید، ساخت release با خطا متوقف می‌شود (`assembleDebug` همچنان کار می‌کند). کلید را این‌طور بسازید:
 
 ```bash
 keytool -genkeypair -v -keystore chistan.jks -alias chistan \
@@ -225,9 +225,9 @@ Or with a cable and `adb`:
 adb install -r Chistan.apk
 ```
 
-## Signing the main build with your own key (optional)
+## Signing the main build with your own key (required for Cafe Bazaar)
 
-With no setup, `Chistan.apk` is signed with the standard debug key and installs on any phone. To sign with your own key:
+The main build (`Chistan.apk`) is never signed with the debug key, because Cafe Bazaar rejects debug-signed packages. Without a key the release build stops with an error (`assembleDebug` still works). Create a key:
 
 ```bash
 keytool -genkeypair -v -keystore chistan.jks -alias chistan \

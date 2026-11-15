@@ -35,7 +35,8 @@ android {
 
             if (releaseKeystore) {
                 signingConfig signingConfigs.release
-            } else {
+            } else if (gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }) {
+                // Cafe Bazaar rejects debug-signed APKs, so never fall back to the debug key.
                 throw new GradleException(
                     "Release signing key not configured. Set CHISTAN_KEYSTORE_FILE and signing credentials."
                 )
