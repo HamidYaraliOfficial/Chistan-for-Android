@@ -1,9 +1,9 @@
+
 plugins {
     id 'com.android.application'
 }
 
-// Optional release signing. Put these in the environment (see README) to sign with your own key.
-// Without them the release build is signed with the standard debug key, which is still installable.
+// Release signing configuration
 def releaseKeystore = System.getenv('CHISTAN_KEYSTORE_FILE')
 
 android {
@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId 'app.chistan.crossword'
-        minSdk 24            // Android 7.0 and newer
+        minSdk 24
         targetSdk 34
         versionCode 1
         versionName '1.0.0'
@@ -32,7 +32,14 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig releaseKeystore ? signingConfigs.release : signingConfigs.debug
+
+            if (releaseKeystore) {
+                signingConfig signingConfigs.release
+            } else {
+                throw new GradleException(
+                    "Release signing key not configured. Set CHISTAN_KEYSTORE_FILE and signing credentials."
+                )
+            }
         }
     }
 
@@ -41,11 +48,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    // A personal sideloaded app: do not let lint rules about store policies stop the build.
     lint {
         abortOnError false
         checkReleaseBuilds false
     }
 }
 
-// No dependencies on purpose: the app uses only the Android framework (Activity + WebView).
+// No external dependencies.
+// The app uses Android Activity and WebView only.
